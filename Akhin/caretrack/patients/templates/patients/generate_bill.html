@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container py-5" style="min-height: 100vh; background: #f4f7f6;">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      
+      <!-- Back Button & Print Button -->
+      <div class="d-flex justify-content-between mb-4">
+        <a href="{% url 'home' %}" class="btn btn-secondary">
+          <i class="bi bi-arrow-left"></i> Back
+        </a>
+        <button onclick="window.print()" class="btn btn-primary d-print-none" style="background: #1a3f47; border: none;">
+          <i class="bi bi-printer"></i> Print Bill
+        </button>
+      </div>
+
+      <!-- Professional Bill Card -->
+      <div class="card shadow" style="border-radius: 12px; border: none; overflow: hidden;">
+        <!-- Header -->
+        <div class="bg-dark text-white p-4" style="background: linear-gradient(135deg, #1a3f47 0%, #2a5a68 100%) !important;">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h2 class="mb-0 fw-bold"><i class="bi bi-hospital"></i> CareTrack Hospital</h2>
+              <p class="mb-0 text-white-50">Official Patient Billing</p>
+            </div>
+            <div class="text-end">
+              <h4 class="mb-0">INVOICE</h4>
+              <small>#INV-{{ patient.id|stringformat:"04d" }}</small><br>
+              <small>{{ patient.updated_at|date:"M d, Y" }}</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Body -->
+        <div class="card-body p-5">
+          <!-- Patient Details -->
+          <div class="row mb-5">
+            <div class="col-sm-6">
+              <h5 class="text-muted mb-3">Bill To:</h5>
+              <h4 class="fw-bold" style="color: #1a3f47;">{{ patient.name }}</h4>
+              <p class="mb-1"><i class="bi bi-telephone"></i> Default Phone: {{ patient.phone }}</p>
+              <p class="mb-1"><i class="bi bi-person"></i> Age/Gender: {{ patient.age }} / {{ patient.gender }}</p>
+              <p class="mb-0"><i class="bi bi-stethoscope"></i> Diagnosis: {{ patient.diagnosis }}</p>
+            </div>
+            <div class="col-sm-6 text-sm-end text-center mt-4 mt-sm-0">
+              <h5 class="text-muted mb-3">Scan to verify:</h5>
+              {% if qr_image_b64 %}
+              <div class="p-2 d-inline-block border rounded bg-white shadow-sm">
+                <img src="data:image/png;base64,{{ qr_image_b64 }}" alt="QR Code" style="width: 140px; height: 140px;" />
+              </div>
+              <p class="small text-muted mt-2">Scan for full records</p>
+              {% endif %}
+            </div>
+          </div>
+
+          <!-- Billing Items -->
+          <div class="table-responsive mb-4">
+            <table class="table table-bordered">
+              <thead class="table-light text-uppercase small fw-bold">
+                <tr>
+                  <th class="py-3">Description</th>
+                  <th class="text-end py-3">Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Doctor Fee -->
+                <tr>
+                  <td class="py-3">
+                    <span class="fw-bold">Doctor Consultation Fee</span>
+                  </td>
+                  <td class="text-end py-3 align-middle">${{ patient.doctor_fee|default:"0.00"|floatformat:2 }}</td>
+                </tr>
+
+                <!-- Medicines Table -->
+                {% if medicines %}
+                  {% for med in medicines %}
+                  <tr>
+                    <td class="py-3">
+                      <i class="bi bi-capsule text-success me-2"></i> {{ med.name }}
+                      {% if med.description %}<br><small class="text-muted ms-4">{{ med.description }}</small>{% endif %}
+                    </td>
+                    <td class="text-end py-3 align-middle">${{ med.cost|default:"0.00"|floatformat:2 }}</td>
+                  </tr>
+                  {% endfor %}
+                {% else %}
+                  <tr>
+                    <td class="text-muted py-3"><i>No medicines prescribed</i></td>
+                    <td class="text-end py-3">$0.00</td>
+                  </tr>
+                {% endif %}
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Total Calculation -->
+          <div class="row text-end">
+            <div class="col-sm-6 offset-sm-6">
+              <hr>
+              <div class="d-flex justify-content-between mb-2">
+                <span>Medicine Base Total:</span>
+                <span>${{ medicine_total|floatformat:2 }}</span>
+              </div>
+              <div class="d-flex justify-content-between mb-3">
+                <span>Doctor Fee:</span>
+                <span>${{ patient.doctor_fee|default:"0.00"|floatformat:2 }}</span>
+              </div>
+              <div class="d-flex justify-content-between bg-light p-3 rounded border">
+                <span class="fw-bold h5 mb-0" style="color: #1a3f47;">Grand Total:</span>
+                <span class="fw-bold h5 mb-0 text-success">${{ total_amount|floatformat:2 }}</span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Footer Message -->
+          <div class="text-center mt-5">
+            <p class="text-muted fst-italic mb-0">"Thank you for choosing CareTrack Medical. Wishing you a speedy recovery."</p>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  @media print {
+    body { background: white !important; }
+    .card { box-shadow: none !important; border: 1px solid #ddd !important; }
+    .container { max-width: 100% !important; margin: 0 !important; padding: 0 !important; }
+    .btn, nav { display: none !important; }
+  }
+</style>
+{% endblock %}

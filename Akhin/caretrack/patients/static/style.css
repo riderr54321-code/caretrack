@@ -1,0 +1,177 @@
+/* ====== GLOBAL RESET ====== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Segoe UI", system-ui, sans-serif;
+}
+
+body {
+  min-height: 100vh;
+  background: linear-gradient(
+    120deg,
+    #0f2027,
+    #203a43,
+    #2c5364
+  );
+  background-size: 300% 300%;
+  animation: gradientBG 12s ease infinite;
+  color: #fff;
+}
+
+/* ====== BACKGROUND ANIMATION ====== */
+@keyframes gradientBG {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ====== NAVBAR ====== */
+.navbar {
+  backdrop-filter: blur(10px);
+  background: rgba(0, 0, 0, 0.4) !important;
+  box-shadow: 0 10px 30px rgba(0,0,0,.4);
+}
+
+/* ====== GLASS CARD ====== */
+.card {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.2);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 20px 40px rgba(0,0,0,.4);
+  animation: fadeUp .8s ease;
+}
+
+/* ====== CARD ANIMATION ====== */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ====== FORM INPUTS ====== */
+input, textarea, select {
+  background: rgba(255,255,255,0.9) !important;
+  border-radius: 12px !important;
+  border: none !important;
+  padding: 12px !important;
+  transition: all .3s ease;
+}
+
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0,123,255,.3);
+  transform: scale(1.02);
+}
+
+/* ====== BUTTONS ====== */
+.btn {
+  border-radius: 30px;
+  padding: 10px 22px;
+  font-weight: 600;
+  letter-spacing: .5px;
+  position: relative;
+  overflow: hidden;
+  transition: all .35s ease;
+}
+
+/* Button hover glow */
+.btn:hover {
+  transform: translateY(-3px) scale(1.04);
+  box-shadow: 0 15px 35px rgba(0,0,0,.5);
+}
+
+/* Shine effect */
+.btn::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -75%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(255,255,255,.6),
+    transparent
+  );
+  transform: skewX(-20deg);
+}
+
+.btn:hover::after {
+  animation: shine .8s;
+}
+
+@keyframes shine {
+  100% {
+    left: 125%;
+  }
+}
+
+/* ====== TABLE ====== */
+.table {
+  background: rgba(255,255,255,0.12);
+  color: #fff;
+  border-radius: 16px;
+  overflow: hidden;
+  animation: fadeUp .9s ease;
+}
+
+.table th {
+  background: rgba(0,0,0,.5);
+  border: none;
+}
+
+.table td {
+  border-color: rgba(255,255,255,.15);
+}
+
+/* Table row hover animation */
+.table tr {
+  transition: all .3s ease;
+}
+
+.table tr:hover {
+  background: rgba(0,123,255,.2);
+  transform: scale(1.01);
+}
+
+/* ====== ACTION BUTTON COLORS ====== */
+.btn-success {
+  background: linear-gradient(135deg, #00c853, #64dd17);
+  border: none;
+}
+
+.btn-warning {
+  background: linear-gradient(135deg, #ff9800, #ffc107);
+  border: none;
+  color: #000;
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, #d50000, #ff1744);
+  border: none;
+}
+
+/* ====== PAGE TITLES ====== */
+h3 {
+  font-weight: 700;
+  letter-spacing: 1px;
+  animation: fadeUp .6s ease;
+}
+
+/* ====== RESPONSIVE ====== */
+@media (max-width: 768px) {
+  .table {
+    font-size: 14px;
+  }
+  .btn {
+    padding: 8px 16px;
+  }
+}

@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card" style="border: none; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08);">
+        <div style="background: linear-gradient(135deg, #1a3f47 0%, #2a5a68 100%); color: white; padding: 25px; border-radius: 12px 12px 0 0;">
+          <h3 style="margin: 0;"><i class="bi bi-prescription"></i> {{ title }}</h3>
+        </div>
+        
+        <div class="card-body p-4">
+          <form method="POST">
+            {% csrf_token %}
+            
+            <div class="mb-4">
+              <label class="form-label fw-bold" style="color: #1a3f47;">Medicine Name <span class="text-danger">*</span></label>
+              <input type="text" name="name" class="form-control form-control-lg" value="{{ medicine.name }}" required
+                     style="border-radius: 8px; border: 1px solid #ced4da; font-size: 1rem;">
+            </div>
+
+            <div class="mb-4">
+              <label class="form-label fw-bold" style="color: #1a3f47;">Description / Details</label>
+              <textarea name="description" class="form-control" rows="3"
+                        style="border-radius: 8px; border: 1px solid #ced4da;">{{ medicine.description }}</textarea>
+            </div>
+
+            <div class="mb-4">
+              <label class="form-label fw-bold" style="color: #1a3f47;">Unit Cost (₹) <span class="text-danger">*</span></label>
+              <div class="input-group">
+                <span class="input-group-text" style="border-radius: 8px 0 0 8px; background: #e8f1f4; color: #1a3f47; border: 1px solid #ced4da;">₹</span>
+                <input type="number" step="0.01" name="cost" class="form-control form-control-lg" value="{{ medicine.cost|default:'0.00' }}" required
+                       style="border-radius: 0 8px 8px 0; border: 1px solid #ced4da; font-size: 1rem;">
+              </div>
+            </div>
+
+            <div class="d-flex justify-content-end gap-3 mt-5">
+              <a href="{% url 'medicines_list' %}" class="btn" style="background: #e9ecef; color: #495057; border-radius: 8px; padding: 10px 20px; font-weight: 500;">
+                <i class="bi bi-x-circle"></i> Cancel
+              </a>
+              <button type="submit" class="btn" style="background: #00ff00; color: #1a3f47; border-radius: 8px; padding: 10px 30px; font-weight: 700;">
+                <i class="bi bi-check-circle"></i> Save Medicine
+              </button>
+            </div>
+            
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

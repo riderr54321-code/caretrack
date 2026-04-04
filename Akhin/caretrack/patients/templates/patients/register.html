@@ -1,0 +1,174 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+  <title>CareTrack - Register</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css">
+  <style>
+    body {
+      background: linear-gradient(135deg, #1a3f47 0%, #2a5a68 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .login-container {
+      width: 100%;
+      max-width: 450px;
+      padding: 20px;
+    }
+
+    .login-card {
+      background: rgba(52, 112, 125, 0.4);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      padding: 50px 40px;
+    }
+
+    .login-title {
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 32px;
+      font-weight: 700;
+      color: #00ff00;
+      letter-spacing: 1px;
+    }
+
+    .icon-hospital {
+      text-align: center;
+      font-size: 3rem;
+      color: #00ff00;
+      margin-bottom: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-label, label {
+      color: #ffffff;
+      font-weight: 600;
+      margin-bottom: 10px;
+      display: block;
+      font-size: 0.95rem;
+    }
+
+    /* Style django form inputs */
+    input[type="text"], input[type="password"], input[type="email"] {
+      background: rgba(255, 255, 255, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 12px;
+      padding: 12px 16px;
+      color: #333;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      width: 100%;
+    }
+
+    input:focus {
+      background: #ffffff;
+      border-color: #00ff00;
+      box-shadow: 0 0 0 0.2rem rgba(0, 255, 0, 0.25);
+      outline: none;
+    }
+
+    .helptext {
+      font-size: 0.8em;
+      color: #ddd;
+      display: block;
+      margin-top: 5px;
+    }
+
+    .errorlist {
+      background: rgba(255, 68, 68, 0.2);
+      border: 1px solid rgba(255, 68, 68, 0.5);
+      color: #ff6b6b;
+      border-radius: 12px;
+      padding: 12px 16px;
+      list-style-type: none;
+      margin-bottom: 15px;
+    }
+
+    .btn-login {
+      width: 100%;
+      background: #00ff00;
+      border: none;
+      padding: 14px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      margin-top: 25px;
+      border-radius: 12px;
+      color: #1a3f47;
+      font-size: 1.05rem;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .btn-login:hover {
+      background: #00dd00;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 16px rgba(0, 255, 0, 0.3);
+    }
+
+    .login-link {
+      display: block;
+      text-align: center;
+      margin-top: 20px;
+      color: #ffffff;
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+
+    .login-link:hover {
+      color: #00ff00;
+      text-decoration: underline;
+    }
+
+    .divider {
+      height: 1px;
+      background: rgba(255, 255, 255, 0.1);
+      margin: 20px 0;
+    }
+  </style>
+</head>
+<body>
+<div class="login-container">
+  <div class="login-card">
+    <div class="icon-hospital">
+      <i class="bi bi-hospital"></i>
+    </div>
+    
+    <h2 class="login-title">CareTrack Registration</h2>
+
+    <form method="POST">
+      {% csrf_token %}
+
+      {{ form.as_p }}
+
+      <div class="form-group mt-3 mb-4">
+        <label class="form-label text-white fw-bold">Select Hospital Role</label>
+        <select name="role" class="form-select" style="border-radius: 12px; padding: 12px 16px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.95); font-size: 1rem;">
+          <option value="doctor">Doctor</option>
+          <option value="nursing">Nursing Staff</option>
+          <option value="medical_store">Medical Store / Billing</option>
+        </select>
+      </div>
+
+      <button type="submit" class="btn btn-login">
+        <i class="bi bi-person-plus"></i> Register
+      </button>
+    </form>
+    
+    <div class="divider"></div>
+
+    <a href="{% url 'login' %}" class="login-link">Already have an account? <span style="color: #00ff00;">Login here</span></a>
+  </div>
+</div>
+</body>
+</html>

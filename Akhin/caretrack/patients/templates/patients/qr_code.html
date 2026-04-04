@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="container-fluid py-4" style="background: #f8f9fa; min-height: 100vh;">
+  <div class="container">
+    <a href="{% url 'home' %}" class="btn btn-secondary mb-3" style="background: #34707d; color: white; border: none; border-radius: 8px; padding: 10px 16px; text-decoration: none;">
+      <i class="bi bi-arrow-left"></i> Back
+    </a>
+
+    <div class="row">
+      <!-- Patient Info -->
+      <div class="col-md-6">
+        <div class="card" style="border: none; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.1);">
+          <div style="background: linear-gradient(135deg, #1a3f47 0%, #2a5a68 100%); color: white; padding: 20px; border-radius: 12px 12px 0 0;">
+            <h4 style="margin: 0;"><i class="bi bi-person-vcard"></i> Patient Information</h4>
+          </div>
+          <div class="card-body p-4">
+            <p><strong>ID:</strong> <span class="badge" style="background: #e8f1f4; color: #1a3f47;">{{ patient.id }}</span></p>
+            <p><strong>Name:</strong> {{ patient.name }}</p>
+            <p><strong>Age:</strong> {{ patient.age }} years</p>
+            <p><strong>Gender:</strong> {{ patient.gender }}</p>
+            <p><strong>Phone:</strong> {{ patient.phone }}</p>
+            <p><strong>Diagnosis:</strong> {{ patient.diagnosis }}</p>
+            {% if patient.description %}
+            <p><strong>Notes:</strong> {{ patient.description }}</p>
+            {% endif %}
+            <hr>
+            <p><strong>Created:</strong> {{ patient.created_at|date:"M d, Y - g:i A" }}</p>
+            <p><strong>Updated:</strong> {{ patient.updated_at|date:"M d, Y - g:i A" }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- QR Code -->
+      <div class="col-md-6">
+        <div class="card" style="border: none; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.1);">
+          <div style="background: linear-gradient(135deg, #1a3f47 0%, #2a5a68 100%); color: white; padding: 20px; border-radius: 12px 12px 0 0;">
+            <h4 style="margin: 0;"><i class="bi bi-qr-code"></i> QR Code</h4>
+          </div>
+          <div class="card-body p-4 text-center">
+            <p style="font-size: 0.9rem; color: #666; margin-bottom: 15px;">Scan this QR code to view patient details</p>
+            {% if qr_image_b64 %}
+              <a href="{% url 'patient_details' patient.id %}">
+                <img src="data:image/png;base64,{{ qr_image_b64 }}" style="width: 250px; height: 250px; border: 3px solid #00ff00; border-radius: 8px; transition: transform 0.2s;" alt="QR Code" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+              </a>
+              <div class="mt-4">
+                <a href="{% url 'patient_details' patient.id %}" class="btn btn-primary" style="background: #34707d; border: none; border-radius: 8px; padding: 10px 20px;">
+                  <i class="bi bi-box-arrow-up-right"></i> View Patient Details
+                </a>
+              </div>
+            {% else %}
+              <div style="width: 250px; height: 250px; background: #f0f0f0; border-radius: 8px; margin: 0 auto; display: flex; align-items: center; justify-content: center;">
+                <p style="color: #999;">QR Code generation not available</p>
+              </div>
+            {% endif %}
+            <p style="font-size: 0.85rem; color: #999; margin-top: 15px;">{{ patient.created_at|date:"M d, Y H:i" }}</p>
+          </div>
+        </div>
+
+        <!-- Medicines -->
+        <div class="card mt-3" style="border: none; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.1);">
+          <div style="background: linear-gradient(135deg, #1a3f47 0%, #2a5a68 100%); color: white; padding: 20px; border-radius: 12px 12px 0 0;">
+            <h5 style="margin: 0;"><i class="bi bi-capsule"></i> Prescribed Medicines</h5>
+          </div>
+          <div class="card-body p-4">
+            {% if medicines %}
+              <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                {% for medicine in medicines %}
+                  <span class="badge" style="background: #00ff00; color: #1a3f47; padding: 8px 12px; font-size: 0.9rem;">
+                    {{ medicine.name }}
+                  </span>
+                {% endfor %}
+              </div>
+            {% else %}
+              <p class="text-muted"><i class="bi bi-info-circle"></i> No medicines prescribed</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

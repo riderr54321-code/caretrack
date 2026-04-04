@@ -1,0 +1,260 @@
+{% extends 'base.html' %}
+{% load patient_tags %}
+{% block content %}
+
+<div class="container-fluid py-4" style="background: #f8f9fa; min-height: 100vh;">
+  <div class="container" style="max-width: 800px;">
+    <a href="{% url 'home' %}" class="btn btn-secondary mb-3"
+      style="background: #34707d; color: white; border: none; border-radius: 8px; padding: 10px 16px; text-decoration: none;">
+      <i class="bi bi-arrow-left"></i> Back
+    </a>
+
+    <div class="card" style="border: none; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.1);">
+      <div
+        style="background: linear-gradient(135deg, #1a3f47 0%, #2a5a68 100%); color: white; padding: 30px; border-radius: 12px 12px 0 0;">
+        <h2 style="font-weight: 700; margin: 0;">
+          <i class="bi bi-pencil-square"></i> Edit Patient #{{ patient.id }}
+        </h2>
+        <p style="opacity: 0.9; margin: 5px 0 0 0;">Update patient information and medicines</p>
+      </div>
+
+      <div class="card-body p-5">
+        {% if error %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+          <i class="bi bi-exclamation-triangle"></i> {{ error }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endif %}
+
+        <form method="POST" id="patientForm">
+          {% csrf_token %}
+
+          <!-- Patient ID (Read-only) -->
+          <div class="mb-4">
+            <label class="form-label fw-bold" style="color: #1a3f47;">
+              <i class="bi bi-lock"></i> Patient ID
+            </label>
+            <input type="text" class="form-control" value="{{ patient.id }}" disabled
+              style="border-radius: 8px; border: 1px solid #ddd; padding: 12px; background: #f8f9fa;">
+            <small class="text-muted">Unique identifier (cannot be changed)</small>
+          </div>
+
+          <!-- Patient Basic Info -->
+          <div class="row mb-4">
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-bold" style="color: #1a3f47;">
+                <i class="bi bi-person"></i> Patient Name *
+              </label>
+              <input type="text" name="name" class="form-control" value="{{ patient.name }}" required
+                placeholder="Full name" style="border-radius: 8px; border: 1px solid #ddd; padding: 12px;">
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-bold" style="color: #1a3f47;">
+                <i class="bi bi-phone"></i> Phone Number *
+              </label>
+              <input type="text" name="phone" id="phoneInput" class="form-control" value="{{ patient.phone }}" required pattern="\d{10}"
+                maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);" placeholder="10-digit number" style="border-radius: 8px; border: 1px solid #ddd; padding: 12px;">
+              <small class="text-muted">10 digits required</small>
+            </div>
+          </div>
+
+          <div class="row mb-4">
+            <div class="col-md-4 mb-3">
+              <label class="form-label fw-bold" style="color: #1a3f47;">
+                <i class="bi bi-calendar"></i> Age *
+              </label>
+              <select name="age" class="form-select" required
+                style="border-radius: 8px; border: 1px solid #ddd; padding: 12px;">
+                <option value="">Select Age</option>
+                {% for age_val in ages %}
+                <option value="{{ age_val }}" {% if patient.age == age_val %}selected{% endif %}>{{ age_val }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="col-md-4 mb-3">
+              <label class="form-label fw-bold" style="color: #1a3f47;">
+                <i class="bi bi-person-badge"></i> Gender *
+              </label>
+              <select name="gender" class="form-select" required
+                style="border-radius: 8px; border: 1px solid #ddd; padding: 12px;">
+                <option value="Male" {% if patient.gender == "Male" %}selected{% endif %}>Male</option>
+                <option value="Female" {% if patient.gender == "Female" %}selected{% endif %}>Female</option>
+                <option value="Other" {% if patient.gender == "Other" %}selected{% endif %}>Other</option>
+              </select>
+            </div>
+
+            <div class="col-md-4 mb-3">
+              <label class="form-label fw-bold" style="color: #1a3f47;">
+                <i class="bi bi-stethoscope"></i> Diagnosis *
+              </label>
+              <input type="text" name="diagnosis" class="form-control" value="{{ patient.diagnosis }}" required
+                placeholder="Disease/condition" style="border-radius: 8px; border: 1px solid #ddd; padding: 12px;">
+            </div>
+          </div>
+
+          <!-- Description and Doctor Fee -->
+          <div class="row mb-4">
+            <div class="col-md-8">
+              <label class="form-label fw-bold" style="color: #1a3f47;">
+                <i class="bi bi-file-earmark-text"></i> Description
+              </label>
+              <textarea name="description" class="form-control" placeholder="Additional patient details..."
+                style="border-radius: 8px; border: 1px solid #ddd; padding: 12px; min-height: 100px;">{{ patient.description }}</textarea>
+            </div>
+            {% if request.user|user_role == 'doctor' or request.user.is_superuser %}
+            <div class="col-md-4">
+              <label class="form-label fw-bold" style="color: #1a3f47;">
+                <i class="bi bi-currency-dollar"></i> Doctor Fee ($)
+              </label>
+              <input type="number" name="doctor_fee" step="0.01" class="form-control" value="{{ patient.doctor_fee }}"
+                style="border-radius: 8px; border: 1px solid #ddd; padding: 12px;">
+            </div>
+            {% endif %}
+          </div>
+
+          <hr class="my-5">
+
+          {% if request.user|user_role == 'doctor' or request.user.is_superuser %}
+          <!-- Medicines Selection -->
+          <h5 class="fw-bold mb-3" style="color: #1a3f47;">
+            <i class="bi bi-capsule"></i> Prescribe Medicines
+          </h5>
+
+          <div class="mb-4">
+            <label class="form-label fw-bold mb-2" style="color: #1a3f47;">Search & Select Medicines (669+ available)</label>
+            <div class="mb-2" style="position: relative;">
+              <input type="text" id="medicineSearchBox" class="form-control" placeholder="Search medicines by name..." style="border-radius: 8px; border: 1px solid #ddd; padding: 12px; padding-right: 45px; color: #000;">
+              <button type="button" id="voiceSearchBtn" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); border: none; background: none; padding: 5px; cursor: pointer;" title="Voice Search">
+                <i class="bi bi-mic-fill text-danger" style="font-size: 1.2rem;"></i>
+              </button>
+            </div>
+            <select id="medicinesSelect" name="medicines" multiple class="form-select" size="8"
+              style="border-radius: 8px; border: 1px solid #ddd; padding: 12px; color: #000; min-height: 200px;">
+              {% for medicine in medicines %}
+              <option value="{{ medicine.id }}" style="padding: 6px; border-bottom: 1px solid #eee;" {% if medicine in patient.medicines.all %}selected{% endif %}>{{ medicine.name }}</option>
+              {% endfor %}
+            </select>
+            <small class="text-muted"><i class="bi bi-info-circle"></i> Hold Ctrl/Cmd to select multiple medicines.</small>
+          </div>
+
+          <!-- Selected Medicines Display -->
+          <div id="selectedMedicinesContainer" class="mb-4">
+            <h6 class="fw-bold mb-2" style="color: #1a3f47;">Currently Selected Medicines:</h6>
+            <div id="selectedMedicinesDisplay" class="d-flex flex-wrap gap-2"></div>
+          </div>
+          {% elif request.user|user_role == 'nursing' %}
+          <!-- NURSING STAFF - VIEW ONLY MEDICINES -->
+          <div class="alert alert-info"
+            style="background: rgba(52, 112, 125, 0.1); border: 1px solid #34707d; border-radius: 8px; color: #34707d; padding: 12px 16px; margin-bottom: 20px;">
+            <i class="bi bi-info-circle"></i> <strong>Patient Medicines (Read-Only):</strong> Prescribed by Doctor
+            during consultation.
+          </div>
+          {% if patient.medicines.all %}
+          <div class="mb-4">
+            <div class="d-flex flex-wrap gap-2">
+              {% for medicine in patient.medicines.all %}
+              <span class="badge"
+                style="background: #00ff00; color: #1a3f47; padding: 8px 12px; font-size: 0.95rem; border-radius: 6px;">
+                <i class="bi bi-capsule"></i> {{ medicine.name }}
+              </span>
+              {% endfor %}
+            </div>
+          </div>
+          {% else %}
+          <div class="mb-4" style="color: #666; font-size: 0.95rem;">
+            <i class="bi bi-info-circle"></i> No medicines have been prescribed yet.
+          </div>
+          {% endif %}
+          {% endif %}
+
+          <!-- Submit Button -->
+          <button type="submit" class="btn w-100"
+            style="background: #34707d; color: white; border-radius: 8px; border: none; padding: 14px; font-weight: 600; font-size: 1.05rem;">
+            <i class="bi bi-check-circle"></i> Update Patient
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const voiceBtn = document.getElementById('voiceSearchBtn');
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+  if (SpeechRecognition) {
+    const recognition = new SpeechRecognition();
+    recognition.continuous = false;
+    recognition.lang = 'en-US';
+
+    voiceBtn.addEventListener('click', function() {
+      try {
+        recognition.start();
+        voiceBtn.innerHTML = '<i class="bi bi-mic-fill text-success" style="animation: pulse 1s infinite; font-size: 1.2rem;"></i>';
+      } catch (e) {
+        console.log("Recognition error: " + e.message);
+      }
+    });
+
+    recognition.onresult = function(event) {
+      const transcript = event.results[0][0].transcript;
+      medicineSearchBox.value = transcript;
+      filterMedicines();
+      voiceBtn.innerHTML = '<i class="bi bi-mic-fill text-danger" style="font-size: 1.2rem;"></i>';
+    };
+
+    recognition.onerror = function() {
+      voiceBtn.innerHTML = '<i class="bi bi-mic-fill text-danger" style="font-size: 1.2rem;"></i>';
+    };
+
+    recognition.onend = function() {
+      voiceBtn.innerHTML = '<i class="bi bi-mic-fill text-danger" style="font-size: 1.2rem;"></i>';
+    };
+  } else {
+    voiceBtn.addEventListener('click', function() {
+      alert("Voice search is not supported in this browser or over an insecure connection (use HTTPS or localhost).");
+    });
+  }
+
+  // Update on page load
+  updateSelectedMedicines();
+
+  // Update selected medicines display when selection changes
+  $('#medicinesSelect').on('change', function () {
+    updateSelectedMedicines();
+  });
+
+  function updateSelectedMedicines() {
+    const selectedOptions = document.querySelectorAll('#medicinesSelect option:checked');
+    const display = document.getElementById('selectedMedicinesDisplay');
+
+    let html = '';
+    if (selectedOptions.length === 0) {
+      html = '<span class="text-muted"><i class="bi bi-info-circle"></i> No medicines selected</span>';
+    } else {
+      selectedOptions.forEach(option => {
+        html += `<span class="badge" style="background: #e8f1f4; color: #1a3f47; padding: 8px 12px; font-size: 0.95rem; border-radius: 6px; display: inline-flex; align-items: center; gap: 8px;">
+          <i class="bi bi-capsule"></i> ${option.text}
+          <i class="bi bi-x-circle-fill text-danger" style="cursor: pointer;" onclick="cancelMedicine('${option.value}')"></i>
+        </span>`;
+      });
+    }
+    display.innerHTML = html;
+  }
+
+  function cancelMedicine(id) {
+    const select = document.getElementById('medicinesSelect');
+    const options = select.options;
+    for (let i = 0; i < options.length; i++) {
+        if (options[i].value === id) {
+            options[i].selected = false;
+            break;
+        }
+    }
+    updateSelectedMedicines();
+  }
+</script>
+
+{% endblock %}
